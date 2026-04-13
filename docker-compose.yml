@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  portfolio-web:
+    build: .
+    container_name: maulana-portfolio
+    restart: unless-stopped
+    ports:
+      - "8080:80" 
