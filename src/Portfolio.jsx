@@ -1,407 +1,626 @@
-import { useEffect, useState } from "react";
+import { BlurFade } from "./components/magicui/blur-fade";
+import { Marquee } from "./components/magicui/marquee";
+import { MagicCard } from "./components/magicui/magic-card";
+import { Meteors } from "./components/magicui/meteors";
+import { IconCloud } from "./components/magicui/icon-cloud";
+import {
+  Mail,
+  ArrowUpRight,
+  Code2,
+  Layers,
+  TerminalSquare,
+  Globe,
+  Cpu,
+  Database,
+  Server,
+  Smartphone,
+  GitBranch,
+} from "lucide-react";
 
-const SKILLS = [
-  { label: "PHP",         cls: "tag-php"      },
-  { label: "Laravel",     cls: "tag-laravel"  },
-  { label: "JavaScript",  cls: "tag-js"       },
-  { label: "HTML / CSS",  cls: "tag-html"     },
-  { label: "Python",      cls: "tag-python"   },
-  { label: "MySQL",       cls: "tag-mysql"    },
-  { label: "TailwindCSS", cls: "tag-tailwind" },
-  { label: "Gemini API",  cls: "tag-ai"       },
+// ─── Brand icon SVGs (lucide v1+ removed brand icons) ───────────────────────
+const GithubIcon = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+  </svg>
+);
+const TwitterIcon = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+  </svg>
+);
+const LinkedinIcon = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+  </svg>
+);
+const FigmaIcon = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M5 5.5A3.5 3.5 0 0 1 8.5 2H12v7H8.5A3.5 3.5 0 0 1 5 5.5zm7 0V9h3.5A3.5 3.5 0 0 0 12 5.5V5.5zm0 5V14h3.5a3.5 3.5 0 0 0 0-7H12v3.5zm0 4.5v3.5A3.5 3.5 0 1 1 8.5 15H12zm-7 3.5A3.5 3.5 0 0 1 8.5 15H12v3.5A3.5 3.5 0 0 1 5 18.5z"/>
+  </svg>
+);
+
+// ─── Color tokens ─────────────────────────────────────────────────────────────
+const C = {
+  bg: "#0c0c0e",
+  surface: "#111113",
+  surface2: "#17171a",
+  border: "#232326",
+  text: "#e4e4e7",
+  muted: "#71717a",
+  dim: "#3f3f46",
+  accentSoft: "#27272a",
+};
+
+// ─── Data ─────────────────────────────────────────────────────────────────────
+const ICON_SLUGS = [
+  // Languages
+  "javascript",
+  "dart",
+  "kotlin",
+  "php",
+  "micropython",
+  // Frontend & Mobile
+  "react",
+  "flutter",
+  "html5",
+  "css3",
+  // Backend & Runtime
+  "nodedotjs",
+  "express",
+  "laravel",
+  // Databases
+  "mysql",
+  "mariadb",
+  // Tools & Platforms
+  "git",
+  "github",
+  "docker",
+  "linux",
+  "postman",
+  "figma",
+  "visualstudiocode",
+  "androidstudio",
 ];
 
 const PROJECTS = [
   {
-    badge: "UKK 2026", badgeCls: "badge-ukk",
-    name: "Digital Library App",
-    desc: "Aplikasi perpustakaan sekolah digital — PHP, MySQL, Bootstrap 5, Waterfall method.",
+    title: "DigiLab (Digital Library)",
+    desc: "A digital library management system built for my final competency exam (UKK). Includes complete ERD design and developed using PHP, MySQL, and Laravel/React.",
+    tag: "Full Stack",
+    year: "2026",
+    link: "#",
   },
   {
-    badge: "Personal", badgeCls: "badge-personal",
-    name: "WhatsApp Linux Client",
-    desc: "Native Linux WA client dengan voice/video call via whatsmeow + Electron.",
+    title: "Mobile ERP System",
+    desc: "A mobile-based ERP application built with Flutter. Collaborated on this project with my partner during my 6-month internship (PKL) at PT Cenplus Komputer Senter.",
+    tag: "Mobile App",
+    year: "2025",
+    link: "#",
   },
   {
-    badge: "AI API", badgeCls: "badge-api",
-    name: "AI Chatbot SaaS",
-    desc: "Chatbot lokal bisnis menggunakan Gemini API & freemium model.",
+    title: "Fedora Home Server",
+    desc: "Repurposed a Lenovo Ideapad into a dedicated headless home server. Runs on Fedora Server, configured with custom SSH access, Btrfs, and optimized system performance.",
+    tag: "Linux / SysAdmin",
+    year: "2026",
+    link: "#",
+  },
+  {
+    title: "Linux WA Client (WIP)",
+    desc: "An experimental native WhatsApp desktop client for Linux built using whatsmeow (Go) and Electron to bring missing voice and video call support to Linux users.",
+    tag: "Desktop / Go",
+    year: "2026",
+    link: "#",
   },
 ];
 
-// Tech tools & gear
-const TOOLS = [
-  { 
-    name: "VS Code", 
-    svg: <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg> 
+const TIMELINE = [
+  {
+    year: "2026",
+    role: "UKK & Home Lab",
+    place: "SMK (12th Grade) & Personal Lab",
+    desc: "Developing DigiLab for my final competency exam and experimenting with Linux by building and managing a Fedora home server.",
   },
-  { 
-    name: "Linux", 
-    svg: <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg> 
+  {
+    year: "2025",
+    role: "Internship (PKL)",
+    place: "PT CNPLUS Computer Center",
+    desc: "Completed a 6-month internship. Dove deep into mobile development and built a mobile ERP system collaboratively.",
   },
-  { 
-    name: "Git", 
-    svg: <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M13 6h3a2 2 0 0 1 2 2v7"></path><line x1="6" y1="9" x2="6" y2="21"></line></svg> 
-  },
-  { 
-    name: "Laragon", 
-    svg: <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg> 
-  },
-  { 
-    name: "Postman", 
-    svg: <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> 
-  },
-  { 
-    name: "Figma", 
-    svg: <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 5.5A3.5 3.5 0 0 1 8.5 2H12v7H8.5A3.5 3.5 0 0 1 5 5.5z"></path><path d="M12 2h3.5a3.5 3.5 0 1 1 0 7H12V2z"></path><path d="M12 12.5a3.5 3.5 0 1 1 7 0 3.5 3.5 0 1 1-7 0z"></path><path d="M5 19.5A3.5 3.5 0 0 1 8.5 16H12v3.5a3.5 3.5 0 1 1-7 0z"></path><path d="M5 12.5A3.5 3.5 0 0 1 8.5 9H12v7H8.5A3.5 3.5 0 0 1 5 12.5z"></path></svg> 
+  {
+    year: "2024",
+    role: "Vocational Student (RPL)",
+    place: "SMK — Software Engineering",
+    desc: "Started focusing on Software Engineering, learning everything from PHP/MySQL basics to exploring modern frameworks like Laravel and React.",
   },
 ];
 
-// Album covers
-// Album covers (Menggunakan jalur folder lokal biar anti error)
-// Album covers (Menggunakan jalur folder lokal biar anti error)
-const ALBUMS = [
-  { title: "Nectar",                         artist: "Joji",              img: "/albums/nectar.jpg",          bg: "linear-gradient(135deg,#1a0808,#2a0c0c)", label: "#c05040" },
-  { title: "Ballads 1",                      artist: "Joji",              img: "/albums/ballads1.jpg",        bg: "linear-gradient(135deg,#181418,#282028)", label: "#a090a0" },
-  { title: "Good Morning It's Now Tomorrow", artist: "Matt Maltese",      img: "/albums/goodmorning.jpg",     bg: "linear-gradient(135deg,#2c1e1c,#1a1210)", label: "#d09080" },
-  { title: "Pony",                           artist: "Rex Orange County", img: "/albums/pony.jpg",            bg: "linear-gradient(135deg,#2040a0,#102060)", label: "#a0c0f0" },
-  { title: "Freudian",                       artist: "Daniel Caesar",     img: "/albums/freudian.jpg",        bg: "linear-gradient(135deg,#1a1a0e,#2a2818)", label: "#b0a860" },
-  { title: "Piss In The Wind",               artist: "Joji",              img: "/albums/pissinthewind.jpg",   bg: "linear-gradient(135deg,#1c1a10,#282414)", label: "#c0b080" },
+const SOCIAL = [
+  { icon: GithubIcon, label: "GitHub", href: "https://github.com" },
+  { icon: LinkedinIcon, label: "LinkedIn", href: "#" },
+  { icon: Mail, label: "Email", href: "mailto:maulana@example.com" },
 ];
 
-// Socials - Updated with pure SVGs
-const SOCIALS = [
-  { 
-    id: "gh", 
-    icon: <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>, 
-    label: "github.com/Maulanaamir", href: "https://github.com/Maulanaamir" 
-  },
-  { 
-    id: "in", 
-    icon: <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>, 
-    label: "linkedin.com/in/Ahdmaulana", href: "https://linkedin.com/ahdmaulana" 
-  },
-  { 
-    id: "ig", 
-    icon: <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>, 
-    label: "@maulana.dev", href: "https://instagram.com/" 
-  },
-];
+// ─── Sub-components ───────────────────────────────────────────────────────────
+const Divider = () => (
+  <div style={{ height: 1, width: "100%", background: C.border, margin: "5rem 0" }} />
+);
 
-const WAVE_HEIGHTS = ["40%","80%","60%","100%","70%","50%","90%","65%","45%","75%","55%","85%","40%","70%","60%","95%","50%","80%"];
-const WAVE_DELAYS  = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7];
+const SectionLabel = ({ children }) => (
+  <p
+    style={{
+      fontSize: "0.7rem",
+      fontWeight: 500,
+      letterSpacing: "0.18em",
+      textTransform: "uppercase",
+      color: C.muted,
+      marginBottom: "1.5rem",
+    }}
+  >
+    {children}
+  </p>
+);
 
-const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap');
+const Tag = ({ children }) => (
+  <span
+    style={{
+      display: "inline-block",
+      padding: "2px 8px",
+      borderRadius: 6,
+      background: C.accentSoft,
+      color: C.muted,
+      fontSize: "0.65rem",
+      fontWeight: 500,
+      letterSpacing: "0.08em",
+      textTransform: "uppercase",
+    }}
+  >
+    {children}
+  </span>
+);
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body, #root { width: 100%; min-height: 100vh; }
-
-  body { background: #141018; font-family: 'DM Sans', sans-serif; }
-
-  .pf-page { min-height: 100vh; padding: 36px 40px 56px; max-width: 1280px; margin: 0 auto; }
-
-  /* Nav */
-  .pf-nav { display: flex; align-items: center; gap: 4px; margin-bottom: 32px; }
-  .pf-dot { width: 8px; height: 8px; border-radius: 50%; background: #c4a090; margin-right: 8px; animation: pf-pulse 2s infinite; }
-  .pf-nav-btn { padding: 7px 18px; border-radius: 20px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s; color: #7a6868; border: none; background: transparent; font-family: 'DM Sans', sans-serif; }
-  .pf-nav-btn.active  { background: rgba(196,160,144,0.14); color: #c4a090; }
-  .pf-nav-btn:hover:not(.active) { background: rgba(255,255,255,0.04); color: #9a8878; }
-
-  /* Grid */
-  .pf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-
-  /* Base card - Opacity transition for Focus Mode */
-  .pf-card { 
-    background: #1c1620; border-radius: 22px; padding: 26px; border: 1px solid #342838; 
-    overflow: hidden; 
-    transition: transform 0.22s ease, border-color 0.22s ease, opacity 0.4s ease; 
-  }
-  .pf-card:hover { transform: translateY(-3px); border-color: #483848; }
-  .pf-card.dimmed { opacity: 0.25; filter: grayscale(40%); pointer-events: none; }
-
-  /* Hero */
-  .pf-hero { grid-column: 1 / 3; }
-  .pf-hero-title { font-family: 'DM Serif Display', serif; font-size: 38px; line-height: 1.15; color: #f0e4dc; margin-bottom: 28px; }
-  .pf-hero-title em { color: #d4a890; font-style: italic; }
-  .pf-profile-row { display: flex; align-items: center; gap: 12px; }
-  .pf-avatar { width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg,#c4a090,#906070); display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 15px; color: #f8f0ec; flex-shrink: 0; border: 1px solid #4a3040; }
-  .pf-profile-name { font-weight: 500; font-size: 15px; color: #e0cec4; }
-  .pf-profile-sub  { font-size: 12px; color: #7a6068; margin-top: 3px; }
-
-  /* Music */
-  .pf-music { background: #181420 !important; border-color: #342848 !important; }
-  .pf-music-live { font-size: 11px; font-weight: 500; color: #d4a890; letter-spacing: 0.09em; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
-  .pf-music-live::before { content:''; width:6px; height:6px; border-radius:50%; background:#d4a890; animation: pf-pulse 1.2s infinite; }
-  .pf-music-song   { font-family:'DM Serif Display',serif; font-size:21px; color:#f0e4dc; margin-bottom:4px; }
-  .pf-music-artist { font-size:13px; color:#7a6068; margin-bottom:16px; }
-  .pf-waveform     { display:flex; align-items:center; gap:2px; height:32px; margin-bottom:14px; }
-  .pf-waveform span { display:block; width:3px; border-radius:2px; background:rgba(212,168,144,0.3); animation:pf-wave 1s infinite ease-in-out; }
-  .pf-waveform span:nth-child(even) { background:rgba(212,168,144,0.65); }
-  .pf-music-footer { font-size:11px; color:#8a7068; font-weight:500; }
-
-  /* Stats */
-  .pf-stats { background: #181420 !important; border: 1px solid #342848 !important; text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:180px; }
-  .pf-stat-num   { font-family:'DM Serif Display',serif; font-size:56px; color:#c4a090; line-height:1; margin-bottom:8px; }
-  .pf-stat-label { font-size:13px; color:#7a6068; }
-
-  /* Card label */
-  .pf-card-label { font-size:11px; font-weight:500; color:#6a5868; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:14px; }
-
-  /* Skills */
-  .pf-skill-tags { display:flex; flex-wrap:wrap; gap:8px; }
-  .pf-skill-tag  { padding:6px 13px; border-radius:20px; font-size:12px; font-weight:500; }
-  .tag-php      { background:#281e24; color:#d0a0b0; border:1px solid #483040; }
-  .tag-laravel  { background:#2c1e20; color:#d09888; border:1px solid #4a3038; }
-  .tag-js       { background:#28241a; color:#c8b878; border:1px solid #483820; }
-  .tag-html     { background:#2c2018; color:#d0a878; border:1px solid #4a3828; }
-  .tag-python   { background:#1e2824; color:#90c0b0; border:1px solid #304038; }
-  .tag-mysql    { background:#1e2030; color:#8898c8; border:1px solid #303850; }
-  .tag-tailwind { background:#1c2428; color:#80a8b8; border:1px solid #303848; }
-  .tag-ai       { background:#241e28; color:#a888b8; border:1px solid #403050; }
-
-  /* Projects */
-  .pf-projects { grid-column:3; grid-row:2/4; display:flex; flex-direction:column; gap:12px; }
-  .pf-project-item { background:#161020; border-radius:16px; padding:16px; flex:1; border:1px solid #302440; transition: border-color 0.2s; }
-  .pf-project-item:hover { border-color:#483860; }
-  .pf-project-badge { font-size:10px; font-weight:500; padding:3px 9px; border-radius:20px; display:inline-block; margin-bottom:10px; }
-  .badge-ukk      { background:#2c1e24; color:#d09898; border:1px solid #4a3040; }
-  .badge-personal { background:#1e2030; color:#8898c8; border:1px solid #303850; }
-  .badge-api      { background:#241e28; color:#a888b8; border:1px solid #403050; }
-  .pf-project-name { font-size:14px; font-weight:500; color:#e0cec4; margin-bottom:5px; }
-  .pf-project-desc { font-size:11.5px; color:#806870; line-height:1.6; }
-
-  /* Connect Container */
-  .pf-connect { background: #181420 !important; border-color: #302438 !important; display:flex; flex-direction:column; justify-content:space-between; min-height:180px; }
-  .pf-connect-title { font-family:'DM Serif Display',serif; font-size:34px; color:rgba(212,168,144,0.22); line-height:1.1; margin-bottom:16px; }
-  .pf-connect-links { display:flex; flex-direction:column; gap:8px; }
-
-  /* NEW: Connect Links Muted Styling */
-  .pf-connect-link { 
-    display: flex; align-items: center; gap: 10px; font-size: 12px; text-decoration: none; 
-    padding: 10px 14px; border-radius: 12px; transition: all 0.3s ease; 
-    font-family: 'DM Sans', sans-serif; 
-    border: 1px solid #302438; 
-    background: #1a1622;
-    color: #7a6868; /* Warna teks pudar */
-  }
-  .pf-connect-link:hover { 
-    border-color: #4a3848; 
-    background: rgba(255,255,255,0.03); 
-    color: #d4a890; /* Teks nyala pas di-hover */
-    transform: translateY(-2px);
-  }
-  .pf-link-icon { 
-    width: 24px; height: 24px; border-radius: 6px; 
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    color: #6a5868; /* Warna icon pudar */
-    background: #1c1824;
-    border: 1px solid #342838;
-    transition: all 0.3s ease;
-  }
-  .pf-connect-link:hover .pf-link-icon { 
-    color: #d4a890; /* Icon nyala pas di-hover */
-    border-color: #4a3848;
-  }
-
-  /* Location */
-  .pf-location { padding:0 !important; background:#161020 !important; border-color:#302440 !important; min-height:180px; }
-  .pf-map { width:100%; height:100%; min-height:180px; position:relative; }
-  .pf-map-svg { position:absolute; inset:0; width:100%; height:100%; opacity:0.22; }
-  .pf-map-dot { position:absolute; top:42%; left:54%; width:10px; height:10px; border-radius:50%; background:#c4a090; box-shadow:0 0 0 5px rgba(196,160,144,0.18), 0 0 12px rgba(196,160,144,0.35); }
-  .pf-map-overlay { position:absolute; bottom:20px; left:20px; }
-  .pf-map-label { font-size:11px; color:#7a6068; font-weight:500; margin-bottom:4px; }
-  .pf-map-city  { font-family:'DM Serif Display',serif; font-size:22px; color:#e0cec4; }
-
-  /* Tech shelf (Muted SVG Icons) - FIXED HOVER CLIPPING */
-  .pf-tools { grid-column:1/3; }
-  .pf-tools-row { display:flex; gap:12px; margin-top:4px; padding-top:10px; padding-bottom:8px; overflow-x:auto; }
-  .pf-tools-row::-webkit-scrollbar { height:0; }
-  .pf-tool-item { flex-shrink:0; width:80px; display:flex; flex-direction:column; align-items:center; gap:10px; cursor: pointer; }
-  .pf-tool-cover { width:72px; height:72px; border-radius:18px; display:flex; align-items:center; justify-content:center; background: #1a161e; border: 1px solid #302834; color: #6a5868; transition: all 0.3s ease; }
-  .pf-tool-item:hover .pf-tool-cover { background: #241d28; border-color: #4a3848; color: #d4a890; transform: translateY(-4px); }
-  .pf-tool-name { font-size:11px; text-align:center; font-weight:500; color: #7a6868; transition: color 0.3s ease; }
-  .pf-tool-item:hover .pf-tool-name { color: #d4a890; }
-
-  /* Album covers (Muted Images) */
-  .pf-albums { display:grid; grid-template-columns: repeat(3,1fr); gap:12px; margin-top:12px; }
-  .pf-album-item { border-radius:12px; overflow:hidden; position:relative; aspect-ratio:1; cursor: pointer; border: 1px solid #342838; }
-  .pf-album-cover { width:100%; height:100%; display:flex; flex-direction:column; justify-content:flex-end; padding:10px; background-size: cover; background-position: center; filter: grayscale(60%) brightness(0.45) contrast(1.1); transition: all 0.4s ease; }
-  .pf-album-item:hover .pf-album-cover { filter: grayscale(0%) brightness(0.9) contrast(1); transform: scale(1.05); }
-  .pf-album-text-bg { position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,10,18,0.9) 0%, transparent 60%); pointer-events: none; }
-  .pf-album-info { position: relative; z-index: 2; }
-  .pf-album-title  { font-size:12px; font-weight:600; line-height:1.2; margin-bottom:2px; color: #f0e4dc; }
-  .pf-album-artist { font-size:10px; color: #a08890; }
-
-  /* Accent line */
-  .pf-accent-line { width:28px; height:2px; background:#c4a090; opacity:0.6; border-radius:1px; margin-bottom:14px; }
-
-  @keyframes pf-pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
-  @keyframes pf-wave  { 0%,100%{transform:scaleY(0.4)} 50%{transform:scaleY(1)} }
-
-  @media (max-width: 900px) {
-    .pf-hero, .pf-tools { grid-column:1/3; }
-    .pf-projects { grid-column:1/3; grid-row:auto; }
-    .pf-hero-title { font-size:28px; }
-  }
-  @media (max-width: 600px) {
-    .pf-grid { grid-template-columns:1fr; }
-    .pf-hero, .pf-projects, .pf-tools { grid-column:1; }
-    .pf-page { padding:18px 18px 36px; }
-    .pf-hero-title { font-size:24px; }
-    .pf-stat-num { font-size:44px; }
-  }
-`;
-
+// ─── Portfolio ─────────────────────────────────────────────────────────────────
 export default function Portfolio() {
-  const [activeNav, setActiveNav] = useState("Home");
-
-  useEffect(() => {
-    if (document.getElementById("pf-styles")) return;
-    const s = document.createElement("style");
-    s.id = "pf-styles";
-    s.textContent = CSS;
-    document.head.appendChild(s);
-    return () => s.remove();
-  }, []);
-
-  const checkFocus = (categories) => {
-    if (activeNav === "Home") return "";
-    return categories.includes(activeNav) ? "" : "dimmed";
-  };
-
   return (
-    <div className="pf-page">
-      <nav className="pf-nav">
-        <span className="pf-dot" />
-        {["Home","Works","Connect"].map(item => (
-          <button key={item} className={`pf-nav-btn${activeNav === item ? " active" : ""}`} onClick={() => setActiveNav(item)}>{item}</button>
-        ))}
-      </nav>
+    <div style={{ minHeight: "100vh", width: "100%", background: C.bg, overflowX: "hidden" }}>
+      {/* Noise texture overlay */}
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: "none",
+          opacity: 0.03,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+          backgroundSize: "120px",
+        }}
+      />
 
-      <div className="pf-grid">
+      {/* Content */}
+      <div
+        style={{
+          position: "relative",
+          zIndex: 1,
+          maxWidth: 680,
+          margin: "0 auto",
+          padding: "6rem 1.5rem",
+        }}
+      >
+        {/* ════════════════════
+            HERO
+        ════════════════════ */}
+        <section style={{ marginBottom: "6rem", position: "relative" }}>
+          {/* Soft glow behind */}
+          <div
+            style={{
+              position: "absolute",
+              top: -80,
+              left: -100,
+              width: 400,
+              height: 400,
+              borderRadius: "50%",
+              background: "radial-gradient(circle, #3f3f46 0%, transparent 70%)",
+              opacity: 0.06,
+              pointerEvents: "none",
+            }}
+          />
 
-        {/* Hero */}
-        <div className={`pf-card pf-hero ${checkFocus(["Home", "Works", "Connect"])}`}>
-          <p className="pf-hero-title">Building things at the intersection of <em>code, creativity &amp; curiosity.</em></p>
-          <div className="pf-profile-row">
-            <div className="pf-avatar">ML</div>
-            <div>
-              <p className="pf-profile-name">Maulana</p>
-              <p className="pf-profile-sub">Full Stack Developer in the Making · SMK RPL</p>
+          <BlurFade delay={0}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: "2rem" }}>
+              <div
+                style={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: "50%",
+                  background: "#22c55e",
+                  boxShadow: "0 0 8px 2px rgba(34,197,94,0.35)",
+                }}
+              />
+              <span style={{ fontSize: "0.8rem", color: C.muted }}>
+              Available for work & collaboration
+              </span>
             </div>
-          </div>
-        </div>
+          </BlurFade>
 
-        {/* Now Playing */}
-        <div className={`pf-card pf-music ${checkFocus(["Home"])}`}>
-          <div className="pf-music-live">Now playing</div>
-          <div className="pf-music-song">Slow Dancing In The Dark</div>
-          <div className="pf-music-artist">Joji</div>
-          <div className="pf-waveform">
-            {WAVE_HEIGHTS.map((h, i) => <span key={i} style={{ height: h, animationDelay: `${WAVE_DELAYS[i]}s` }} />)}
-          </div>
-          <div className="pf-music-footer">Spotify · Joji Fan</div>
-        </div>
+          <BlurFade delay={0.08}>
+            <h1
+              style={{
+                fontSize: "clamp(2rem, 5vw, 2.8rem)",
+                lineHeight: 1.05,
+                fontWeight: 600,
+                letterSpacing: "-0.03em",
+                color: C.text,
+                marginBottom: "1.25rem",
+              }}
+            >
+              Maulanaamir.dev
+            </h1>
+          </BlurFade>
 
-        {/* Stats */}
-        <div className={`pf-card pf-stats ${checkFocus(["Home", "Works"])}`}>
-          <div className="pf-stat-num">3+</div>
-          <div className="pf-stat-label">Tahun belajar coding</div>
-        </div>
+          <BlurFade delay={0.13}>
+            <p
+              style={{
+                fontSize: "1rem",
+                lineHeight: 1.75,
+                color: C.muted,
+                maxWidth: 420,
+                marginBottom: "2.5rem",
+              }}
+            >
+              A vocational school graduate in Software Engineering who drifted from
+              backend to web frontend and landed on mobile with Flutter — with no{" "}
+              <span style={{ color: C.text }}>fixed focus, just genuine curiosity</span>.
+            </p>
+          </BlurFade>
 
-        {/* Skills */}
-        <div className={`pf-card ${checkFocus(["Home", "Works"])}`}>
-          <div className="pf-accent-line" />
-          <div className="pf-card-label">Tech Stack</div>
-          <div className="pf-skill-tags">
-            {SKILLS.map(s => <span key={s.label} className={`pf-skill-tag ${s.cls}`}>{s.label}</span>)}
-          </div>
-        </div>
-
-        {/* Projects */}
-        <div className={`pf-card pf-projects ${checkFocus(["Home", "Works"])}`}>
-          <div className="pf-accent-line" />
-          <div className="pf-card-label">Work</div>
-          {PROJECTS.map(p => (
-            <div key={p.name} className="pf-project-item">
-              <span className={`pf-project-badge ${p.badgeCls}`}>{p.badge}</span>
-              <div className="pf-project-name">{p.name}</div>
-              <div className="pf-project-desc">{p.desc}</div>
+          <BlurFade delay={0.18}>
+            <div style={{ display: "flex", gap: 4 }}>
+              {SOCIAL.map(({ icon: Icon, label, href }) => (
+                <a
+                  key={label}
+                  href={href}
+                  aria-label={label}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: 8,
+                    borderRadius: 8,
+                    color: C.muted,
+                    textDecoration: "none",
+                    transition: "background 0.2s, color 0.2s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = C.surface2;
+                    e.currentTarget.style.color = C.text;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.color = C.muted;
+                  }}
+                >
+                  <Icon size={16} strokeWidth={1.5} />
+                </a>
+              ))}
             </div>
-          ))}
-        </div>
+          </BlurFade>
+        </section>
 
-        {/* Connect - Updated Section */}
-        <div className={`pf-card pf-connect ${checkFocus(["Home", "Connect"])}`}>
-          <div className="pf-connect-title">Let's<br />connect</div>
-          <div className="pf-connect-links">
-            {SOCIALS.map(s => (
-              <a key={s.id} className="pf-connect-link" href={s.href} target="_blank" rel="noreferrer">
-                <span className="pf-link-icon">{s.icon}</span>
-                {s.label}
-              </a>
-            ))}
-          </div>
-        </div>
+        <Divider />
 
-        {/* Location */}
-        <div className={`pf-card pf-location ${checkFocus(["Home", "Connect"])}`}>
-          <div className="pf-map">
-            <svg className="pf-map-svg" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <pattern id="pf-grid-pat" width="30" height="30" patternUnits="userSpaceOnUse">
-                  <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#c4a090" strokeWidth="0.5" />
-                </pattern>
-              </defs>
-              <rect width="300" height="200" fill="url(#pf-grid-pat)" />
-              <path d="M20,80 Q60,60 100,70 Q140,80 180,65 Q220,50 260,70 Q280,78 300,72" stroke="#907060" strokeWidth="1.5" fill="none" />
-              <path d="M0,120 Q50,110 100,115 Q150,120 200,108 Q250,96 300,110" stroke="#907060" strokeWidth="1" fill="none" />
-              <path d="M80,0 Q90,50 85,100 Q80,150 88,200" stroke="#907060" strokeWidth="1" fill="none" />
-            </svg>
-            <div className="pf-map-dot" />
-            <div className="pf-map-overlay">
-              <div className="pf-map-label">Find me here</div>
-              <div className="pf-map-city">Jakarta, Indonesia</div>
-            </div>
-          </div>
-        </div>
+        {/* ════════════════════
+            ABOUT + TECH
+        ════════════════════ */}
+        <section style={{ marginBottom: "5rem" }}>
+          <BlurFade inView delay={0}>
+            <SectionLabel>About</SectionLabel>
+          </BlurFade>
 
-        {/* Tech Tools */}
-        <div className={`pf-card pf-tools ${checkFocus(["Home", "Works"])}`}>
-          <div className="pf-accent-line" />
-          <div className="pf-card-label">My tools & gear</div>
-          <div className="pf-tools-row">
-            {TOOLS.map(t => (
-              <div key={t.name} className="pf-tool-item">
-                <div className="pf-tool-cover">
-                  {t.svg}
-                </div>
-                <span className="pf-tool-name">{t.name}</span>
+          {/* Two-col: text + floating cloud */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr auto",
+              gap: "1rem",
+              alignItems: "center",
+            }}
+          >
+            <BlurFade inView delay={0.07}>
+              <p style={{ fontSize: "0.92rem", lineHeight: 1.85, color: C.muted }}>
+                I graduated from vocational high school (SMK) majoring in Software
+                Engineering (RPL). I started out interested in backend — building APIs
+                and working with databases. Then I moved toward web frontend with React,
+                and eventually got into mobile development with{" "}
+                <span style={{ color: C.text }}>Flutter</span> during my internship
+                (PKL). I don't really have a fixed specialization, but I'm comfortable
+                jumping around and picking things up as needed.
+              </p>
+            </BlurFade>
+
+            <BlurFade inView delay={0.1}>
+              <div
+                style={{
+                  width: 260,
+                  height: 260,
+                  flexShrink: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  /* Cloud library renders its own canvas, biarkan overflow visible */
+                  overflow: "visible",
+                  position: "relative",
+                }}
+              >
+                <IconCloud iconSlugs={ICON_SLUGS} />
               </div>
+            </BlurFade>
+          </div>
+        </section>
+
+        <Divider />
+
+
+        {/* ════════════════════
+            PROJECTS
+        ════════════════════ */}
+        <section style={{ marginBottom: "5rem" }}>
+          <BlurFade inView delay={0}>
+            <SectionLabel>Selected Projects</SectionLabel>
+          </BlurFade>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+              gap: 12,
+            }}
+          >
+            {PROJECTS.map((p, i) => (
+              <BlurFade key={p.title} inView delay={i * 0.07}>
+                <MagicCard
+                  style={{ borderRadius: 12 }}
+                  gradientColor="#1c1c1f"
+                  gradientSize={240}
+                  gradientOpacity={1}
+                >
+                  <div
+                    style={{
+                      padding: "1.25rem",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 10,
+                      height: "100%",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <Tag>{p.tag}</Tag>
+                      <span style={{ fontSize: "0.68rem", color: C.dim, fontFamily: "monospace" }}>
+                        {p.year}
+                      </span>
+                    </div>
+                    <h3 style={{ fontSize: "0.88rem", fontWeight: 600, color: C.text, lineHeight: 1.35 }}>
+                      {p.title}
+                    </h3>
+                    <p style={{ fontSize: "0.78rem", color: C.muted, lineHeight: 1.75, flex: 1 }}>
+                      {p.desc}
+                    </p>
+                    <a
+                      href={p.link}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 4,
+                        fontSize: "0.7rem",
+                        color: C.dim,
+                        textDecoration: "none",
+                        marginTop: 4,
+                        transition: "color 0.15s",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = C.muted)}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = C.dim)}
+                    >
+                      View project <ArrowUpRight size={10} />
+                    </a>
+                  </div>
+                </MagicCard>
+              </BlurFade>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* Album cover grid */}
-        <div className={`pf-card ${checkFocus(["Home"])}`}>
-          <div className="pf-accent-line" />
-          <div className="pf-card-label">My listening shelf</div>
-          <div className="pf-albums">
-            {ALBUMS.map(a => (
-              <div key={a.title} className="pf-album-item" style={{ background: a.bg }}>
-                <div className="pf-album-cover" style={{ backgroundImage: `url(${a.img})` }}>
-                  <div className="pf-album-text-bg" />
-                  <div className="pf-album-info">
-                    <div className="pf-album-title" style={{ color: a.label }}>{a.title}</div>
-                    <div className="pf-album-artist" style={{ color: a.label }}>{a.artist}</div>
+        <Divider />
+
+        {/* ════════════════════
+            TIMELINE
+        ════════════════════ */}
+        <section style={{ marginBottom: "5rem" }}>
+          <BlurFade inView delay={0}>
+            <SectionLabel>Journey</SectionLabel>
+          </BlurFade>
+
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {TIMELINE.map((item, i) => (
+              <BlurFade key={item.role} inView delay={i * 0.08}>
+                <div style={{ display: "flex", gap: 24 }}>
+                  {/* Year + line */}
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", minWidth: 44 }}>
+                    <span style={{ fontSize: "0.68rem", fontFamily: "monospace", color: C.dim, marginTop: 2 }}>
+                      {item.year}
+                    </span>
+                    {i < TIMELINE.length - 1 && (
+                      <div
+                        style={{
+                          flex: 1,
+                          width: 1,
+                          background: C.border,
+                          marginTop: 10,
+                          marginBottom: 4,
+                        }}
+                      />
+                    )}
+                  </div>
+
+                  {/* Content */}
+                  <div style={{ paddingBottom: i < TIMELINE.length - 1 ? "2.5rem" : 0 }}>
+                    <h4 style={{ fontSize: "0.88rem", fontWeight: 600, color: C.text }}>
+                      {item.role}
+                    </h4>
+                    <p style={{ fontSize: "0.75rem", color: C.muted, margin: "2px 0 6px" }}>
+                      {item.place}
+                    </p>
+                    <p style={{ fontSize: "0.78rem", color: C.muted, lineHeight: 1.7, opacity: 0.65 }}>
+                      {item.desc}
+                    </p>
                   </div>
                 </div>
-              </div>
+              </BlurFade>
             ))}
           </div>
-        </div>
+        </section>
 
+        <Divider />
+
+        {/* ════════════════════
+            STATS
+        ════════════════════ */}
+        <section style={{ marginBottom: "5rem" }}>
+          <BlurFade inView delay={0}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+              {[
+                { value: "10+", label: "Projects Built" },
+                { value: "3", label: "Stacks Explored" },
+                { value: "∞", label: "Curiosity" },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  style={{
+                    padding: "1.1rem 1rem",
+                    borderRadius: 10,
+                    border: `1px solid ${C.border}`,
+                    background: C.surface,
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "block",
+                      fontSize: "1.5rem",
+                      fontWeight: 600,
+                      letterSpacing: "-0.02em",
+                      color: C.text,
+                    }}
+                  >
+                    {stat.value}
+                  </span>
+                  <span style={{ display: "block", fontSize: "0.72rem", color: C.muted, marginTop: 2 }}>
+                    {stat.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </BlurFade>
+        </section>
+
+        <Divider />
+
+        {/* ════════════════════
+            CONTACT CTA
+        ════════════════════ */}
+        <section style={{ marginBottom: "5rem" }}>
+          <BlurFade inView delay={0}>
+            <div
+              style={{
+                position: "relative",
+                borderRadius: 16,
+                border: `1px solid ${C.border}`,
+                background: C.surface,
+                overflow: "hidden",
+                padding: "3rem 2rem",
+                textAlign: "center",
+              }}
+            >
+              {/* Very subtle center glow */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  width: 300,
+                  height: 200,
+                  borderRadius: "50%",
+                  background: "radial-gradient(circle, #3f3f46 0%, transparent 70%)",
+                  opacity: 0.12,
+                  pointerEvents: "none",
+                }}
+              />
+              <Meteors number={10} />
+
+              <div style={{ position: "relative", zIndex: 2 }}>
+                <h2
+                  style={{
+                    fontSize: "1.4rem",
+                    fontWeight: 600,
+                    letterSpacing: "-0.025em",
+                    color: C.text,
+                    marginBottom: "0.75rem",
+                  }}
+                >
+                  Let's build something
+                </h2>
+                <p
+                  style={{
+                    fontSize: "0.85rem",
+                    color: C.muted,
+                    lineHeight: 1.75,
+                    maxWidth: 360,
+                    margin: "0 auto 2rem",
+                  }}
+                >
+                  Open to collaboration, freelance work, or just talking tech.
+                  Whether it's web, mobile, or something in between —
+                  I'm always up for it.
+                </p>
+                <a
+                  href="mailto:maulana@example.com"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "0.55rem 1.1rem",
+                    borderRadius: 8,
+                    background: C.surface2,
+                    border: `1px solid ${C.border}`,
+                    color: C.text,
+                    fontSize: "0.82rem",
+                    fontWeight: 500,
+                    textDecoration: "none",
+                    transition: "background 0.2s",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = C.accentSoft)}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = C.surface2)}
+                >
+                  <Mail size={14} strokeWidth={1.5} />
+                  Get in touch
+                </a>
+              </div>
+            </div>
+          </BlurFade>
+        </section>
+
+        {/* ════════════════════
+            FOOTER
+        ════════════════════ */}
+        <footer
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            fontSize: "0.7rem",
+            color: C.dim,
+          }}
+        >
+          <span>© 2025 Maulana</span>
+          <span>Built with MagicUI &amp; Framer Motion</span>
+        </footer>
       </div>
     </div>
   );
