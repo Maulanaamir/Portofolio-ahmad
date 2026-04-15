@@ -252,7 +252,7 @@ export default function Portfolio() {
                 marginBottom: "1.25rem",
               }}
             >
-              Maulanaamir.dev
+              Maulanaamir
             </h1>
           </BlurFade>
 
