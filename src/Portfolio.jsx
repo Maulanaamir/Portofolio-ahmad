@@ -139,8 +139,8 @@ const TIMELINE = [
 
 const SOCIAL = [
   { icon: GithubIcon, label: "GitHub", href: "https://github.com/Maulanaamir" },
-  { icon: LinkedinIcon, label: "LinkedIn", href: "#" },
-  { icon: Mail, label: "Email", href: "mailto:maulana@example.com" },
+  { icon: LinkedinIcon, label: "LinkedIn", href: "https://www.linkedin.com/in/ahdmaulana/" },
+  { icon: Mail, label: "Email", href: "mailto:achmadmaulanaamirudin@gmail.com" },
 ];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
