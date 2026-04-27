@@ -774,7 +774,7 @@ export default function Portfolio() {
                         </a>
 
                         <a
-                          href="https://t.me/USERNAME_TELEGRAM_LU"
+                          href="https://t.me/Maulanaamir"
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{
