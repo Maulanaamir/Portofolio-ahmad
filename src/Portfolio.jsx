@@ -3,17 +3,20 @@ import { BlurFade } from "./components/magicui/blur-fade";
 import { MagicCard } from "./components/magicui/magic-card";
 import { Meteors } from "./components/magicui/meteors";
 import { IconCloud } from "./components/magicui/icon-cloud";
+import { Safari } from "./components/magicui/safari";
+import { Iphone15Pro } from "./components/magicui/iphone-15-pro";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Mail,
   Send,
   ArrowUpRight,
-  Download,
   User,
   Briefcase,
   Map,
   Sun,
   Moon,
+  X,
+  Lock,
 } from "lucide-react";
 
 // ─── Brand icon SVGs ───────────────────────
@@ -25,6 +28,11 @@ const GithubIcon = ({ size = 16 }) => (
 const LinkedinIcon = ({ size = 16 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+  </svg>
+);
+const GitlabIcon = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M22.65 14.39L12 22.13 1.35 14.39a.84.84 0 0 1-.3-.94l1.22-3.78 2.44-7.51A.42.42 0 0 1 4.82 2a.43.43 0 0 1 .58 0 .42.42 0 0 1 .11.18l2.44 7.49h8.1l2.44-7.51A.42.42 0 0 1 18.6 2a.43.43 0 0 1 .58 0 .42.42 0 0 1 .11.18l2.44 7.51L23 13.45a.84.84 0 0 1-.35.94z" />
   </svg>
 );
 
@@ -57,29 +65,32 @@ const PROJECTS = [
     desc: "A digital library management system built for my final competency exam (UKK). Includes complete ERD design and developed using PHP, MySQL, and Laravel/React.",
     tag: "Full Stack",
     year: "2026",
-    link: "#",
+    deviceType: "custom",
+    previewImg: "/Digilab-admin.png",
+    repoType: "github",
+    repoLink: "https://github.com/Maulanaamir",
   },
   {
     title: "Mobile ERP System",
     desc: "A mobile-based ERP application built with Flutter. Collaborated on this project with my partner during my 6-month internship (PKL) at PT Cenplus Komputer Senter.",
     tag: "Mobile App",
     year: "2025",
-    link: "#",
+    deviceType: "custom",
+    previewImg: "/Mobile-ERP.png",
+    repoType: "private",
+    repoLink: "",
   },
   {
     title: "Fedora Home Server",
     desc: "Repurposed a Lenovo Ideapad into a dedicated headless home server. Runs on Fedora Server, configured with custom SSH access, Btrfs, and optimized system performance.",
     tag: "Linux / SysAdmin",
     year: "2026",
-    link: "#",
+    deviceType: "custom",
+    previewImg: "/server.png",
+    // Mark as local/private infrastructure (not public source)
+    repoType: "local",
+    repoLink: "",
   },
-  // {
-  //   title: "Linux WA Client (WIP)",
-  //   desc: "An experimental native WhatsApp desktop client for Linux built using whatsmeow (Go) and Electron to bring missing voice and video call support to Linux users.",
-  //   tag: "Desktop / Go",
-  //   year: "2026",
-  //   link: "#",
-  // },
 ];
 
 const TIMELINE = [
@@ -134,9 +145,140 @@ const Tag = ({ children }) => (
   </span>
 );
 
+// ─── Project Drawer ───────────────────────────────────────────────────────────
+function ProjectDrawer({ project, onClose, isDark }) {
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
+  const RepoButton = () => {
+    const isPrivate = project.repoType === "private" || project.repoType === "local";
+    const isGitlab = project.repoType === "gitlab";
+    const isGithub = project.repoType === "github";
+    const baseClass = "inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[0.82rem] font-medium transition-all duration-200";
+
+    // Local / Private => disabled lock button
+    if (isPrivate) {
+      return (
+        <button disabled className={`${baseClass} opacity-50 cursor-not-allowed bg-[#f4f4f5] dark:bg-[#17171a] border border-[#e4e4e7] dark:border-[#232326] text-[#52525b] dark:text-[#71717a]`}>
+          <Lock size={15} />
+          <span>Local Access Only</span>
+        </button>
+      );
+    }
+
+    // GitLab (public) - keep original behavior but update label
+    if (isGitlab) {
+      return (
+        <a href={project.repoLink} target="_blank" rel="noopener noreferrer"
+          className={`${baseClass} bg-[#18181b] dark:bg-[#e4e4e7] text-white dark:text-[#0c0c0e] hover:opacity-85`}>
+          <GitlabIcon size={15} />
+          <span>View on GitLab</span>
+        </a>
+      );
+    }
+
+    // GitHub
+    if (isGithub) {
+      return (
+        <a href={project.repoLink} target="_blank" rel="noopener noreferrer"
+          className={`${baseClass} bg-[#18181b] dark:bg-[#e4e4e7] text-white dark:text-[#0c0c0e] hover:opacity-85`}>
+          <GithubIcon size={15} />
+          <span>View on GitHub</span>
+        </a>
+      );
+    }
+
+    // Fallback: disabled
+    return (
+      <button disabled className={`${baseClass} opacity-50 cursor-not-allowed bg-[#f4f4f5] dark:bg-[#17171a] border border-[#e4e4e7] dark:border-[#232326] text-[#52525b] dark:text-[#71717a]`}>
+        <Lock size={15} />
+        <span>Secured Node</span>
+      </button>
+    );
+  };
+
+  // Desktop: side drawer from right; Mobile: bottom sheet from bottom
+  const drawerVariants = isMobile
+    ? { hidden: { y: "100%", opacity: 0 }, visible: { y: 0, opacity: 1 }, exit: { y: "100%", opacity: 0 } }
+    : { hidden: { x: "100%", opacity: 0 }, visible: { x: 0, opacity: 1 }, exit: { x: "100%", opacity: 0 } };
+
+  const drawerClass = isMobile
+    ? "fixed bottom-0 left-0 right-0 z-[60] max-h-[90dvh] overflow-y-auto rounded-t-3xl bg-white dark:bg-[#111113] border-t border-[#e4e4e7] dark:border-[#232326] shadow-[0_-20px_60px_rgba(0,0,0,0.15)] dark:shadow-[0_-20px_60px_rgba(0,0,0,0.6)]"
+    : "fixed top-0 right-0 bottom-0 z-[60] w-full max-w-[440px] overflow-y-auto bg-white dark:bg-[#111113] border-l border-[#e4e4e7] dark:border-[#232326] shadow-[-20px_0_60px_rgba(0,0,0,0.12)] dark:shadow-[-20px_0_60px_rgba(0,0,0,0.6)]";
+
+  return (
+    <>
+      {/* Backdrop */}
+      <motion.div
+        key="drawer-backdrop"
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        onClick={onClose}
+        className="fixed inset-0 z-50 bg-black/30 dark:bg-black/60 backdrop-blur-sm"
+      />
+      {/* Drawer panel */}
+      <motion.div
+        key="drawer-panel"
+        variants={drawerVariants}
+        initial="hidden" animate="visible" exit="exit"
+        transition={{ type: "spring", damping: 28, stiffness: 280 }}
+        className={drawerClass}
+      >
+        {/* Mobile drag handle */}
+        {isMobile && <div className="flex justify-center pt-3 pb-1"><div className="w-10 h-1 rounded-full bg-[#d4d4d8] dark:bg-[#3f3f46]" /></div>}
+
+        <div className="p-6 flex flex-col gap-6">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-[1.05rem] font-semibold text-[#18181b] dark:text-[#e4e4e7] leading-snug">{project.title}</h2>
+              <div className="flex items-center gap-2 mt-1.5">
+                <Tag>{project.tag}</Tag>
+                <span className="text-[0.65rem] font-mono text-[#a1a1aa] dark:text-[#3f3f46]">{project.year}</span>
+              </div>
+            </div>
+            <button onClick={onClose} className="p-1.5 rounded-lg text-[#71717a] hover:bg-[#f4f4f5] dark:hover:bg-[#17171a] hover:text-[#18181b] dark:hover:text-[#e4e4e7] transition-colors flex-shrink-0">
+              <X size={18} />
+            </button>
+          </div>
+
+          {/* Device mockup */}
+          <div className="flex justify-center items-center bg-[#f4f4f5] dark:bg-[#0c0c0e] rounded-2xl p-4 overflow-hidden">
+            {project.deviceType === "mobile" ? (
+              <div className="w-[180px]">
+                <Iphone15Pro src={project.previewImg} width={433} height={882} className="w-full h-auto drop-shadow-2xl" />
+              </div>
+            ) : project.deviceType === "custom" ? (
+              <div className="w-full max-w-[360px]">
+                <img src={project.previewImg} alt={project.title} className="w-full h-auto drop-shadow-xl rounded-xl" />
+              </div>
+            ) : (
+              <div className="w-full max-w-[360px]">
+                <Safari imageSrc={project.previewImg} url={project.repoLink || "localhost"} width={1203} height={753} className="w-full h-auto drop-shadow-xl" />
+              </div>
+            )}
+          </div>
+
+          {/* Description */}
+          <div>
+            <p className="text-[0.68rem] font-medium tracking-[0.15em] uppercase text-[#a1a1aa] dark:text-[#52525b] mb-2">About</p>
+            <p className="text-[0.84rem] leading-[1.8] text-[#52525b] dark:text-[#71717a]">{project.desc}</p>
+          </div>
+
+          {/* Action */}
+          <div>
+            <p className="text-[0.68rem] font-medium tracking-[0.15em] uppercase text-[#a1a1aa] dark:text-[#52525b] mb-2">Access Status</p>
+            <RepoButton />
+          </div>
+        </div>
+      </motion.div>
+    </>
+  );
+}
+
 export default function Portfolio() {
   const [showOptions, setShowOptions] = useState(false);
-  const [isDark, setIsDark] = useState(true); // Default mode gelap
+  const [isDark, setIsDark] = useState(false); // Default mode terang
+  const [selectedProject, setSelectedProject] = useState(null);
 
   return (
     <div className={isDark ? "dark" : ""}>
@@ -223,6 +365,8 @@ export default function Portfolio() {
 
           {/* ABOUT */}
           <section id="about" className="mb-20 scroll-mt-24">
+
+
             <BlurFade inView delay={0}>
               <SectionLabel>About</SectionLabel>
             </BlurFade>
@@ -267,12 +411,15 @@ export default function Portfolio() {
                   className="w-[85vw] md:w-auto shrink-0 snap-center md:snap-align-none"
                 >
                   <MagicCard
-                    className="rounded-xl h-full bg-white dark:bg-[#111113] border-[#e4e4e7] dark:border-[#232326] transition-colors duration-300"
+                    className="rounded-xl h-full bg-white dark:bg-[#111113] border-[#e4e4e7] dark:border-[#232326] transition-colors duration-300 cursor-pointer"
                     gradientColor={isDark ? "#1c1c1f" : "#f4f4f5"}
                     gradientSize={240}
                     gradientOpacity={1}
                   >
-                    <div className="p-5 flex flex-col gap-2.5 h-full">
+                    <div
+                      className="p-5 flex flex-col gap-2.5 h-full"
+                      onClick={() => setSelectedProject(p)}
+                    >
                       <div className="flex justify-between items-center">
                         <Tag>{p.tag}</Tag>
                         <span className="text-[0.68rem] text-[#a1a1aa] dark:text-[#3f3f46] font-mono transition-colors duration-300">
@@ -285,12 +432,12 @@ export default function Portfolio() {
                       <p className="text-[0.78rem] text-[#52525b] dark:text-[#71717a] leading-relaxed flex-1 transition-colors duration-300">
                         {p.desc}
                       </p>
-                      <a
-                        href={p.link}
-                        className="inline-flex items-center gap-1 text-[0.7rem] text-[#a1a1aa] dark:text-[#3f3f46] hover:text-[#52525b] dark:hover:text-[#71717a] transition-colors mt-1"
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setSelectedProject(p); }}
+                        className="inline-flex items-center gap-1 text-[0.7rem] text-[#a1a1aa] dark:text-[#3f3f46] hover:text-[#52525b] dark:hover:text-[#71717a] transition-colors mt-1 w-fit"
                       >
                         View project <ArrowUpRight size={10} />
-                      </a>
+                      </button>
                     </div>
                   </MagicCard>
                 </BlurFade>
@@ -341,15 +488,14 @@ export default function Portfolio() {
             <BlurFade inView delay={0}>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {[
-                  { value: "10+", label: "Projects Built" },
+                  { value: "4", label: "Projects Built" },
                   { value: "3", label: "Stacks Explored" },
                   { value: "∞", label: "Curiosity", isFullWidthMobile: true },
                 ].map((stat, i) => (
                   <div
                     key={stat.label}
-                    className={`p-[1.1rem_1rem] rounded-xl border border-[#e4e4e7] dark:border-[#232326] bg-white dark:bg-[#111113] transition-colors duration-300 ${
-                      stat.isFullWidthMobile ? "col-span-2 sm:col-span-1" : ""
-                    }`}
+                    className={`p-[1.1rem_1rem] rounded-xl border border-[#e4e4e7] dark:border-[#232326] bg-white dark:bg-[#111113] transition-colors duration-300 ${stat.isFullWidthMobile ? "col-span-2 sm:col-span-1" : ""
+                      }`}
                   >
                     <span className="block text-2xl font-semibold tracking-tight text-[#18181b] dark:text-[#e4e4e7] transition-colors duration-300">
                       {stat.value}
@@ -464,6 +610,17 @@ export default function Portfolio() {
           </div>
         </div>
       </div>
+
+      {/* Project Detail Drawer */}
+      <AnimatePresence>
+        {selectedProject && (
+          <ProjectDrawer
+            project={selectedProject}
+            onClose={() => setSelectedProject(null)}
+            isDark={isDark}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
